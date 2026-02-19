@@ -1,0 +1,219 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\begin{document}
+
+% ------------------ PORTADA ------------------
+
+\begin{titlepage}
+\centering
+\vspace*{3cm}
+
+{\Large \textbf{Modelos Estocásticos}} \\[1cm]
+
+{\LARGE Caminata Aleatoria Simple} \\[1cm]
+
+{\large 
+Noli Lemus Alvin
+}
+
+\vfill
+
+\end{titlepage}
+
+% ------------------ PROBLEMA ------------------
+
+\section*{Problema}
+
+Tomemos un punto que se pueda mover a la derecha con probabilidad $p$ 
+y a la izquierda con probabilidad $q$, tal que:
+
+\[
+p + q = 1
+\]
+
+En cada paso el movimiento es independiente de los anteriores.
+
+% ------------------ LÓGICA DEL CÓDIGO ------------------
+
+\section*{Planteamiento del Código}
+
+La lógica que se sigue para construir el programa es la siguiente:
+
+Primero, se le pregunta al usuario si desea introducir una probabilidad específica para $p$.
+
+\begin{itemize}
+    \item Si el usuario introduce un valor, ese será $p$.
+    \item Si el usuario no introduce ningún número, el sistema genera un valor aleatorio entre 0 y 1 para $p$.
+\end{itemize}
+
+Una vez determinado $p$, se calcula automáticamente:
+
+\[
+q = 1 - p
+\]
+
+Se fija de manera estándar el número de pasos como:
+
+\[
+n = 100
+\]
+
+Después, en cada uno de los 100 pasos:
+
+\begin{itemize}
+    \item Se genera un número aleatorio entre 0 y 1.
+    \item Si el número es menor o igual que $p$, el punto se mueve a la derecha.
+    \item En caso contrario, se mueve a la izquierda.
+\end{itemize}
+
+Se va acumulando la posición en un contador y se guardan todos los valores para poder graficar la trayectoria completa.
+
+% ------------------ CÓDIGO ------------------
+
+\section*{Código en Python}
+
+\begin{lstlisting}[language=Python]
+import random
+import matplotlib.pyplot as plt
+
+def derecha_izquierda():
+    
+    n = 100
+    
+    entrada = input("Introduce la probabilidad p (Enter para aleatoria): ")
+    
+    if entrada == "":
+        p = random.uniform(0,1)
+    else:
+        p = float(entrada)
+    
+    q = 1 - p
+    
+    contador = 0
+    valores = []
+    
+    for i in range(1, n+1):
+        
+        prob = random.uniform(0,1)
+        
+        if prob <= p:
+            x = 1
+        else:
+            x = 0
+        
+        if x == 1:
+            contador += 1
+        else:
+            contador -= 1
+        
+        valores.append(contador)
+    
+    return valores
+\end{lstlisting}
+
+% ------------------ GRÁFICA ------------------
+
+\section*{Gráfica Obtenida}
+
+\begin{center}
+\includegraphics[width=0.8\textwidth]{grafica.png}
+\end{center}
+
+% ------------------ ANÁLISIS ------------------
+
+\section*{Análisis del Sistema}
+
+Para este sistema podemos plantearnos las siguientes preguntas:
+
+\subsection*{1. ¿El punto regresa al origen?}
+
+La respuesta depende completamente del número de eventos y de las probabilidades.
+
+Si $p$ y $q$ son muy diferentes, es decir, si existe una clara ventaja hacia un lado, el punto tenderá a moverse constantemente en esa dirección. En ese caso, la probabilidad de que regrese al origen es muy baja.
+
+Sin embargo, cuando la diferencia entre $p$ y $q$ es pequeña, es decir, cuando son casi iguales, el comportamiento es mucho más equilibrado. En ese escenario el punto tiene mayores posibilidades de oscilar y eventualmente regresar al origen.
+
+En otras palabras, mientras más similares sean $p$ y $q$, mayor es la posibilidad de retorno.
+
+\subsection*{2. ¿Cuánto se aleja en promedio del origen?}
+
+El alejamiento promedio también depende directamente de las probabilidades.
+
+Si $p > q$, el sistema tiene una tendencia natural a moverse hacia la derecha, por lo que en promedio la posición crecerá conforme aumentan los pasos.
+
+Si $p < q$, ocurre lo contrario: habrá una tendencia hacia la izquierda.
+
+Si $p = q$, el sistema no tiene preferencia y el promedio de la posición se mantiene alrededor del origen, aunque la variabilidad siga creciendo.
+
+De manera matemática, el valor esperado después de $n$ pasos es:
+
+\[
+\mathbb{E}[S_n] = n(p-q)
+\]
+
+lo cual muestra claramente cómo la diferencia entre probabilidades determina la tendencia.
+
+\subsection*{3. ¿Cuál es el alejamiento máximo?}
+
+El alejamiento máximo posible ocurre cuando todos los movimientos son en la misma dirección.
+
+Después de $n$ pasos, el máximo alejamiento es:
+
+\[
+|S_n|_{\text{máx}} = n
+\]
+
+Esto ocurre únicamente si en los 100 pasos el punto siempre se mueve hacia el mismo lado, lo cual tiene probabilidad $p^{100}$ o $q^{100}$.
+
+Aunque es posible, conforme aumenta $n$, esta probabilidad se vuelve extremadamente pequeña.
+
+% ------------------ FUNCIÓN DE PROBABILIDAD ------------------
+
+\section*{Función de Probabilidad}
+
+En $n$ pasos, el número de movimientos hacia la derecha sigue una distribución binomial:
+
+\[
+N_n \sim \text{Binomial}(n,p)
+\]
+
+Si en total hubo $k$ movimientos hacia la derecha, entonces hubo $n-k$ hacia la izquierda.
+
+La posición final es:
+
+\[
+S_n = k - (n-k) = 2k - n
+\]
+
+Por lo tanto, la probabilidad de terminar en una posición $s$ es:
+
+\[
+P(S_n = s) =
+\binom{n}{k} p^k q^{n-k}
+\]
+
+donde:
+
+\[
+k = \frac{n+s}{2}
+\]
+
+siempre que $n+s$ sea un número par.
+
+Esta expresión describe completamente la función de probabilidad del proceso.
+
+\section*{Conclusión}
+
+Este ejercicio permite comprender de manera clara cómo un sistema aparentemente simple puede generar comportamientos complejos dependiendo únicamente de sus probabilidades. 
+
+La caminata aleatoria muestra cómo pequeñas diferencias entre $p$ y $q$ pueden producir tendencias marcadas en el largo plazo, mientras que probabilidades similares generan comportamientos más equilibrados e impredecibles. 
+
+Este tipo de modelos es fundamental en los modelos estocásticos, ya que sirve como base para entender procesos más complejos en áreas como física, economía y teoría de probabilidad.
+
+
+\end{document}
